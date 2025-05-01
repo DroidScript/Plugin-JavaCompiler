@@ -1,8 +1,6 @@
 
 //Add CreateJavaCompiler method to global app object.
-app.CreateJavaCompiler = function( options ) {
-	return new CreateJavaCompiler( options );
-}
+app.CreateJavaCompiler = options => new CreateJavaCompiler( options );
 
 //Plugin wrapper object.
 function CreateJavaCompiler( options )
@@ -23,8 +21,9 @@ function CreateJavaCompiler( options )
     inst.AddPlatformJarFile = path => send("addPlatformJarFile", app.RealPath(path));
     inst.AddJarFile = path => send("addJarFile", app.RealPath(path));
     inst.SetOutputFolder = path => send("setOutputFolder", app.RealPath(path));
-    inst.Compile = () => send("compile");// === "true";
+    inst.Compile = () => send("compile") === "true";
     inst.GenerateJarFile = () => send("generateJarFile");
+    inst.GenerateDexFile = (jarPath) => send("generateDexFile", app.RealPath(jarPath));
     inst.GetDiagnosticMessages = () => send("getDiagnosticMessages");
     
     return inst;

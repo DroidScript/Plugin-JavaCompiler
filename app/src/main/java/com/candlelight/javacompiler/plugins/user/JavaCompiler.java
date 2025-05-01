@@ -25,98 +25,106 @@ package com.candlelight.javacompiler.plugins.user;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+
 import com.candlelight.nbja.JavaCompilerHelper;
+
 import java.util.Locale;
+
 import jdkx.tools.Diagnostic;
 
 public class JavaCompiler {
-  public static String TAG = "JavaCompiler";
-  public static float VERSION = 1.00f;
-  // private Method m_callscript;
-  // private Method m_execscript;
-  // private Method m_getObject;
-  private Object m_parent;
-  private Context m_ctx;
-  private String m_plugDir;
+    public static String TAG = "JavaCompiler";
+    public static float VERSION = 2.00f;
+    private String m_plugDir;
+    private JarToDex jarToDex;
 
-  // Construct plugin.
-  public JavaCompiler() {
-    Log.d(TAG, "Creating plugin object");
-  }
+    // Construct plugin.
+    public JavaCompiler() {
+        Log.d(TAG, "Creating plugin object");
+    }
 
-  // Initialise plugin.
-  public void Init(Context ctx, Object parent) throws Exception {
-    Log.d(TAG, "Initialising plugin object");
+    // Initialise plugin.
+    public void Init(Context ctx, Object parent) throws Exception {
+        Log.d(TAG, "Initialising plugin object");
 
-    // Save context and reference to parent (AndroidScript).
-    m_ctx = ctx;
-    m_parent = parent;
+        // Save context and reference to parent (AndroidScript).
+        Context m_ctx = ctx;
 
-    // Use reflection to get parent's method
-    Log.d(TAG, "Getting CallScript method");
-    /*m_callscript = parent.getClass().getMethod("CallScript", Bundle.class);
-    m_execscript = parent.getClass().getMethod("ExecScript", String.class);
-    m_getObject = parent.getClass().getMethod("GetObject", String.class);*/
+        jarToDex = new JarToDex();
 
-    // Get the plugin directory path (where your plugin will live when running in an app)
-    m_plugDir = m_ctx.getDir("Plugins", 0).getAbsolutePath() + "/javacompiler";
-  }
+        // Use reflection to get parent's method
+        Log.d(TAG, "Getting CallScript method");
 
-  // Release plugin resources.
-  // (Called when plugin is destroyed)
-  public void Release() {}
+        // Get the plugin directory path (where your plugin will live when running in an app)
+        m_plugDir = m_ctx.getDir("Plugins", 0).getAbsolutePath() + "/javacompiler";
+    }
 
-  // Handle commands from DroidScript.
-  public String CallPlugin(Bundle b) throws Exception {
-    return CallPlugin(b, null);
-  }
+    // Handle commands from DroidScript.
+    public String CallPlugin(Bundle b, Object obj) throws Exception {
+        // Extract command.
+        String cmd = b.getString("cmd");
 
-  // Handle commands from DroidScript.
-  public String CallPlugin(Bundle b, Object obj) throws Exception {
-    // Extract command.
-    String cmd = b.getString("cmd");
+        // Process commands.
+        String ret = null;
 
-    // Process commands.
-    String ret = null;
+        if (cmd.equals("getVersion")) return Float.toString(VERSION);
 
-    if (cmd.equals("getVersion")) return Float.toString(VERSION);
+        JavaCompilerHelper helper = (JavaCompilerHelper) obj;
 
-    JavaCompilerHelper helper = (JavaCompilerHelper) obj;
+        String p1 = b.getString("p1");
 
-    String p1 = b.getString("p1", "");
+        try {
+            switch (cmd) {
+                case "setOptions":
+                    helper.setOptions(p1.split(","));
+                    break;
+                case "addJavaFile":
+                    helper.addJavaFile(p1);
+                    break;
+                case "addPlatformJarFile":
+                    helper.addPlatformJarFile(p1);
+                    break;
+                case "addJarFile":
+                    helper.addJarFile(p1);
+                    break;
+                case "setOutputFolder":
+                    helper.setOutputFolder(p1);
+                    jarToDex.outputPath = p1;
+                    break;
+                case "compile":
+                    ret = Boolean.toString(helper.compile());
+                    break;
+                case "generateJarFile":
+                    helper.generateJarFile();
+                    break;
+                case "generateDexFile":
+                    ret = jarToDex.startConversion(p1);
+                    break;
+                case "getDiagnosticMessages":
+                    for (Diagnostic diagnostic : helper.getDiagnostics()) {
+                        Log.i(TAG, diagnostic.getKind().toString() + diagnostic.getMessage(Locale.getDefault()));
+                    }
 
-    try {
-      if (cmd.equals("setOptions")) helper.setOptions(p1.split(","));
-      else if (cmd.equals("addJavaFile")) helper.addJavaFile(p1);
-      else if (cmd.equals("addPlatformJarFile")) helper.addPlatformJarFile(p1);
-      else if (cmd.equals("addJarFile")) helper.addJarFile(p1);
-      else if (cmd.equals("setOutputFolder")) helper.setOutputFolder(p1);
-      else if (cmd.equals("compile")) ret = Boolean.toString(helper.compile());
-      else if (cmd.equals("generateJarFile")) helper.generateJarFile();
-      else if (cmd.equals("getDiagnosticMessages")) {
-        for (Diagnostic diagnostic : helper.getDiagnostics()) {
-          Log.i(TAG, diagnostic.getKind().toString() + diagnostic.getMessage(Locale.getDefault()));
+                    ret = helper.getDiagnosticMessages();
+                    break;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, e.toString());
         }
 
-        ret = helper.getDiagnosticMessages();
-      }
-    } catch (Exception e) {
-      Log.e(TAG, e.toString());
+        return ret;
     }
 
-    return ret;
-  }
+    // Handle creating object from DroidScript.
+    public Object CreateObject(Bundle b) {
+        // Process commands.
+        JavaCompilerHelper helper = new JavaCompilerHelper();
+        helper.setOptions("-proc:none", "-source", "8", "-target", "8");
 
-  // Handle creating object from DroidScript.
-  public Object CreateObject(Bundle b) {
-    // Process commands.
-    JavaCompilerHelper helper = new JavaCompilerHelper();
-    helper.setOptions("-proc:none", "-source", "7", "-target", "7");
+        if (!b.getString("p1", "").toLowerCase().contains("nodefjar")) {
+            helper.addPlatformJarFile(this.m_plugDir + "/android.jar");
+        }
 
-    if (!b.getString("p1", "").toLowerCase().contains("nodefjar")) {
-      helper.addPlatformJarFile(this.m_plugDir + "/android.jar");
+        return ((Object) helper);
     }
-
-    return ((Object) helper);
-  }
 }

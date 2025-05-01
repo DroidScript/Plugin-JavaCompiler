@@ -20,28 +20,21 @@ Open and compile the project with [AndroidIDE](https://github.com/AndroidIDEOffi
 ### Install with shell commands
 
 It can be imported into DroidScript with this example:
-
+Start the terminal in the project folder: `~/AndroidStudioProjects/JavaCompiler`
 ```sh
 cd app/build/outputs/apk/debug
 rm -r temp
+mkdir temp
 unzip app-debug.apk -d temp
 cd temp
 zip JavaCompiler.jar classes*.dex
-rm classes.dex
 cp -r assets/* .
-cp -r lib/* .
-rm -r lib
-rm -r assets
-rm -r res
-rm AndroidManifest.xml
-rm resources.arsc
-rm -r META-INF
-zip -r ../JavaCompiler.ppk *.
-
-cd ..
-export PATH=$PATH:~/Library/Android/sdk/platform-tools/
+zip JavaCompiler.ppk JavaCompiler* android.jar
 adb push JavaCompiler.ppk /sdcard/Android/data/com.smartphoneremote.androidscriptfree/files/DroidScript/Plugins/JavaCompiler.ppk
+echo COMPLETED
 ```
+
+Now (re)open DroidScript and wait for the "plugin loaded" message.
 
 ### Install manually
 

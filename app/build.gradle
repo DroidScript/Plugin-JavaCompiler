@@ -30,7 +30,7 @@ android {
 
     compileOptions {
         coreLibraryDesugaringEnabled true
-        
+
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -38,6 +38,7 @@ android {
 
 dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs_nio:2.0.4'
-    
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation files('libs/dx-1.16.jar')
+    implementation files('libs/nb-javac-17.0.0.4-android.jar')
 }

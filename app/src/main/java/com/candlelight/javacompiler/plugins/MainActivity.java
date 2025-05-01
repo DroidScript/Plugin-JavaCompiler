@@ -1,5 +1,5 @@
 
-package com.candlelight.javawrapper.plugins;
+package com.candlelight.javacompiler.plugins;
 
 import android.app.Activity;
 

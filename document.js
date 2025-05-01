@@ -66,6 +66,13 @@ Delete the temporary folder at the end of the process.
  * @returns bin
  */
 
+ /** ### GenerateDexFile ###
+  * It converts the given jar file to dex file and adds classes.dex file to the output folder.
+  * $$ jac.GenerateDexFile(jarFile) $$
+  * @param {str_ptf} Jar file path.
+  * @returns str
+  */
+
 /** ### GetDiagnosticMessages ###
  * Log records generated during compilation.
  * $$ jac.GetDiagnosticMessages() $$
