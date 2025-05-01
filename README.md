@@ -1,6 +1,6 @@
 # DroidScript Java Compiler
 
-Runtime Java compiler plugin for DroidScript.
+Runtime Java compiler plugin for DroidScript. It can also compile jar files to dex file.
 
 > [!NOTE]
 > Minimum required Android version: 8 (SDK 26).
@@ -11,8 +11,9 @@ After installing the plugin, you can use the example in the documentation to get
 
 ## Build it
 
-This library is mandatory: [nb-javac-android](https://github.com/cemalgnlts/nb-javac-android).
-
+These two libraries are mandatory:
+* [nb-javac-android](https://github.com/cemalgnlts/nb-javac-android).
+* [android-dx](https://github.com/cemalgnlts/android-dx)
 
 
 Open and compile the project with [AndroidIDE](https://github.com/AndroidIDEOfficial) or Android Studio.
